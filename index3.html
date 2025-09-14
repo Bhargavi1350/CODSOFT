@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>VIDYA SETU</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: url('https://koala.sh/api/image/v2-byxum-soe8c.jpg?width=1216&height=832&dream') no-repeat center center fixed;
+      background-size: cover;
+    }
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    h1, h2, h3 { text-align: center; }
+    .grid { display: grid; gap: 10px; }
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .grid-5 { grid-template-columns: repeat(5, 1fr); }
+    button {
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #2563eb;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button:hover { background: #1e40af; }
+    button.outline {
+      background: white;
+      border: 2px solid #2563eb;
+      color: #2563eb;
+    }
+    .chat-box {
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 10px;
+      height: 200px;
+      overflow-y: auto;
+      background: #f9f9f9;
+    }
+    .chat-msg { margin: 5px 0; }
+    .chat-user { text-align: right; color: blue; }
+    .chat-bot { text-align: left; color: green; }
+    video { width: 100%; border-radius: 10px; margin-top: 10px; }
+    .logo-page {
+      text-align: center;
+      padding: 100px 20px;
+    }
+    .logo-title {
+      font-size: 40px;
+      font-weight: bold;
+      color: #1e3a8a;
+    }
+    .logo-sub {
+      font-size: 20px;
+      margin-top: 10px;
+      color: #4b5563;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="app"></div>
+
+  <script>
+    const app = document.getElementById("app");
+
+    // --- State ---
+    let state = JSON.parse(localStorage.getItem("eduplay-state") || "{}");
+
+    // Force show logo every time on reload
+    state.screen = "logo";
+
+    state.class ||= null;
+    state.subject ||= null;
+    state.tab ||= "language";
+    state.language ||= "English";
+    state.score ||= 0;
+    state.chat ||= [];
+    state.quizIndex ||= 0;   // track which question
+    let videoSrc = "";
+
+    // --- Quiz questions ---
+    const quizQuestions = [
+      {
+        q: "If a farmer has 5 mangoes and gives 2 away, how many are left?",
+        options: ["3 ", "2", "7"],
+        answer: 0
+      },
+      {
+        q: "Which planet is known as the Red Planet?",
+        options: ["Earth", "Mars ", "Jupiter"],
+        answer: 1
+      },
+      {
+        q: "What is 9 + 6?",
+        options: ["15 ", "16", "14"],
+        answer: 0
+      }
+    ];
+
+    // --- Helpers ---
+    function saveState() {
+      localStorage.setItem("eduplay-state", JSON.stringify(state));
+    }
+    function setScreen(s) { state.screen = s; saveState(); render(); }
+    function setClass(c) { state.class = c; saveState(); render(); }
+    function setSubject(sub) { 
+      state.subject = sub; 
+      state.tab = "language"; 
+      state.screen = "subject-hub";   
+      saveState(); 
+      render(); 
+    }
+    function setTab(t) { state.tab = t; saveState(); render(); }
+    function setLanguage(lang) { state.language = lang; saveState(); render(); }
+
+    function handleAnswer(choice) {
+      const q = quizQuestions[state.quizIndex];
+      if(choice === q.answer) {
+        state.score += 10;
+        alert("✅ Correct! You earned 10 stars.");
+      } else {
+        alert("❌ Wrong. Try next question!");
+      }
+      state.quizIndex++;
+      if(state.quizIndex >= quizQuestions.length) {
+        alert("🎉 You completed all questions!");
+        state.quizIndex = 0; // reset for replay
+        setScreen("rewards");
+      } else {
+        saveState();
+        render();
+      }
+    }
+
+    function askBot(text) {
+      if(!text.trim()) return;
+      const reply = getBotReply(text);
+      state.chat.push({role:"user", text});
+      state.chat.push({role:"bot", text:reply});
+      saveState(); render();
+    }
+
+    function getBotReply(q) {
+      const text = q.toLowerCase();
+      if (/(add|sum|plus|addition|\+)/.test(text)) return "Addition means combining numbers. Example: 12 + 7 = 19.";
+      if (/(subtract|minus|difference|-)/.test(text)) return "Subtraction finds how much is left: 9 - 4 = 5.";
+      if (/fraction/.test(text)) return "Fractions are parts of a whole. Example: 1/2 means two equal parts, we take one.";
+      if (/(photosynthesis|plant)/.test(text)) return "Plants make food using sunlight, water, and air. This is called photosynthesis.";
+      if (/(earth|planet|space)/.test(text)) return "Earth is the third planet from the Sun and takes ~365 days to orbit.";
+      return "Good question! I don't have that stored offline. Try rephrasing or ask your teacher 🙂";
+    }
+
+    // --- Render screens ---
+    function render() {
+      app.innerHTML = "";
+      if(state.screen==="logo") {
+        app.innerHTML = `
+          <div class="logo-page">
+            <div class="logo-title">📘 VIDYA SETU</div>
+            <div class="logo-sub">Bridge of Knowledge</div>
+            <br><br>
+            <button onclick="setScreen('welcome')">Enter 🚀</button>
+          </div>`;
+      }
+      else if(state.screen==="welcome") {
+        app.innerHTML = `
+          <h1>🚀 Welcome, Young Explorer!</h1>
+          <p>Pick your class and tap Get Started</p>
+          <div class="grid grid-5">
+            ${[...Array(10).keys()].map(i=><button class="${state.class==i+1?"":"outline"}" onclick="setClass(${i+1})">${i+1}</button>).join("")}
+          </div>
+          <br>
+          <div class="grid grid-2">
+            <button onclick="setScreen('subjects')" ${!state.class ? "disabled" : ""}>Get Started 🚀</button>
+            <button class="outline" onclick="setScreen('rewards')">My Rewards ⭐</button>
+          </div>`;
+      }
+      else if(state.screen==="subjects") {
+        const subs=["Mathematics","Science","Social Studies","Languages"];
+        app.innerHTML = `<h2>Class ${state.class} - Subjects</h2>
+          <div class="grid grid-2">${subs.map(s=><button onclick="setSubject('${s}')">${s}</button>).join("")}</div>
+          <br><button class="outline" onclick="setScreen('welcome')">Back</button>`;
+      }
+      else if(state.screen==="subject-hub") {
+        app.innerHTML = `<h2>${state.subject} • Class ${state.class}</h2>
+          <p>Choose a tab:</p>
+          <div class="grid grid-4">
+            <button class="${state.tab==='language'?'':'outline'}" onclick="setTab('language')">Language</button>
+            <button class="${state.tab==='video'?'':'outline'}" onclick="setTab('video')">Video</button>
+            <button class="${state.tab==='quiz'?'':'outline'}" onclick="setTab('quiz')">Quiz</button>
+            <button class="${state.tab==='chat'?'':'outline'}" onclick="setTab('chat')">AI Doubts</button>
+          </div>
+          <div id="tab-content" style="margin-top:15px"></div>
+          <br><div class="grid grid-2">
+            <button class="outline" onclick="setScreen('subjects')">Back</button>
+            <button onclick="setScreen('welcome')">Home</button>
+          </div>`;
+        setTimeout(renderTab,0);
+      }
+      else if(state.screen==="rewards") {
+        app.innerHTML = `<h2>My Rewards ⭐</h2>
+          <p>You have ${state.score} stars!</p>
+          <button onclick="setScreen('subjects')">Continue Learning</button>
+          <br><br>
+          <button class="outline" onclick="setScreen('welcome')">Back Home</button>`;
+      }
+    }
+
+    // --- Render Tabs ---
+    function renderTab() {
+      const c = document.getElementById("tab-content");
+      if(!c) return;
+      if(state.tab==="language") {
+        c.innerHTML = `<h3>Choose Language</h3>
+          <div class="grid grid-2">${["English","Hindi","Tamil","Telugu","Bengali"].map(l=><button class="${state.language===l?"":"outline"}" onclick="setLanguage('${l}')">${l}</button>).join("")}</div>
+          <p>Selected: <b>${state.language}</b></p>`;
+      }
+      if(state.tab==="video") {
+        c.innerHTML = `<h3>Video Class (offline)</h3>
+          <input type="file" id="videoUpload" accept="video/*">
+          <div id="videoArea"></div>`;
+        document.getElementById("videoUpload").onchange = e=>{
+          const f = e.target.files[0];
+          if(f) {
+            videoSrc = URL.createObjectURL(f);
+            document.getElementById("videoArea").innerHTML = <video src="${videoSrc}" controls></video>;
+          }
+        };
+        if(videoSrc) {
+          document.getElementById("videoArea").innerHTML = <video src="${videoSrc}" controls></video>;
+        }
+      }
+      if(state.tab==="quiz") {
+        const q = quizQuestions[state.quizIndex];
+        c.innerHTML = `<h3>Quiz (${state.language})</h3>
+          <p>${q.q}</p>
+          ${q.options.map((opt,i)=><button onclick="handleAnswer(${i})">${opt}</button><br>).join("")}`;
+      }
+      if(state.tab==="chat") {
+        c.innerHTML = `<h3>Ask Doubts (offline bot)</h3>
+          <div class="chat-box" id="chatBox">${state.chat.map(m=><div class="chat-msg ${m.role==='user'?'chat-user':'chat-bot'}">${m.text}</div>).join("")}</div>
+          <div style="margin-top:10px; display:flex; gap:5px">
+            <input id="chatInput" style="flex:1; padding:5px;" placeholder="Type question..."/>
+            <button onclick="askBot(document.getElementById('chatInput').value); document.getElementById('chatInput').value=''">Ask</button>
+          </div>`;
+        const box = document.getElementById("chatBox");
+        box.scrollTop = box.scrollHeight;
+      }
+    }
+
+    render();
+  </script>
+</body>
+</html>
