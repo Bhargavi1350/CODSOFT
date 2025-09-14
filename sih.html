@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vidyasetu - Study Platform</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      background: url("https://img.freepik.com/free-vector/group-children-doing-homework-illustration_1308-2562.jpg?semt=ais_incoming&w=740&q=80") no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+    }
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.6);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    header h1 { margin: 0; font-size: 48px; color: #ffeb3b; }
+    header p { font-size: 20px; margin-bottom: 20px; }
+    .content { max-width: 600px; }
+   .btn {
+      background-color: #ff9800;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    .btn:hover { background-color: #e68900; }
+    .popup {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+    }
+    .popup-content {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      width: 300px;
+      text-align: left;
+      color: black;
+    }
+    .popup-content h2 { margin-top: 0; text-align: center; }
+    .popup-content input {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .close-btn {
+      background: red;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      cursor: pointer;
+      float: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <header>
+      <h1>Vidyasetu</h1>
+      <p>Your Gateway to Smart Learning</p>
+    </header>
+    <div class="content">
+      <h2>Welcome to Vidyasetu</h2>
+      <p>Learn anytime, anywhere with our study platform. Connect, explore, and grow.</p>
+      <button class="btn" onclick="openPopup()">Sign In</button>
+    </div>
+  </div>
+
+  
+  <div class="popup" id="popupForm">
+    <div class="popup-content">
+      <button class="close-btn" onclick="closePopup()">X</button>
+      <h2>Sign In</h2>
+      <form onsubmit="login(event)">
+        <label>Email:</label>
+        <input type="email" placeholder="Enter your email" required>
+        <label>Password:</label>
+        <input type="password" placeholder="Enter your password" required>
+        <button class="btn" type="submit">Login</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openPopup() {
+      document.getElementById("popupForm").style.display = "flex";
+    }
+    function closePopup() {
+      document.getElementById("popupForm").style.display = "none";
+    }
+    function login(event) {
+      event.preventDefault();
+      window.location.href = "vidhyasetu.html";
+    }
+  </script>
+</body>
+</html>
